@@ -50,6 +50,8 @@ function AdminPage() {
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
   const [notes, setNotes] = useState("");
+  const [slotsBusy, setSlotsBusy] = useState(false);
+  const [slotsMsg, setSlotsMsg] = useState<string | null>(null);
 
   const [galleryItems, setGalleryItems] = useState<GalleryRow[]>([]);
   const [galleryTitle, setGalleryTitle] = useState("");
@@ -59,22 +61,26 @@ function AdminPage() {
   const [galleryMsg, setGalleryMsg] = useState<string | null>(null);
   const [galleryFileInputKey, setGalleryFileInputKey] = useState(0);
 
+  const fetchOpts: RequestInit = { credentials: "include" };
+
   async function refresh() {
-    const me = await fetch("/api/admin/me").then((r) => r.json() as Promise<{ authed: boolean }>);
+    const me = await fetch("/api/admin/me", fetchOpts).then(
+      (r) => r.json() as Promise<{ authed: boolean }>,
+    );
     setAuthed(me.authed);
     if (!me.authed) return;
 
-    const slotsRes = await fetch("/api/admin/slots").then(
-      (r) => r.json() as Promise<{ slots: Slot[] }>,
+    const slotsRes = await fetch("/api/admin/slots", fetchOpts).then(
+      (r) => r.json() as Promise<{ slots: Slot[]; error?: string }>,
     );
     setSlots(slotsRes.slots ?? []);
 
-    const bookingsRes = await fetch("/api/admin/bookings").then(
+    const bookingsRes = await fetch("/api/admin/bookings", fetchOpts).then(
       (r) => r.json() as Promise<{ bookings: BookingRow[] }>,
     );
     setBookings(bookingsRes.bookings ?? []);
 
-    const galRes = await fetch("/api/admin/gallery").then(
+    const galRes = await fetch("/api/admin/gallery", fetchOpts).then(
       (r) => r.json() as Promise<{ items?: GalleryRow[]; error?: string }>,
     );
     if ("items" in galRes && galRes.items) setGalleryItems(galRes.items);
@@ -126,6 +132,7 @@ function AdminPage() {
               try {
                 const res = await fetch("/api/admin/login", {
                   method: "POST",
+                  credentials: "include",
                   headers: { "content-type": "application/json" },
                   body: JSON.stringify({ password }),
                 });
@@ -181,7 +188,7 @@ function AdminPage() {
             <button
               className="rounded-full px-5 py-2.5 bg-foreground text-background transition"
               onClick={async () => {
-                await fetch("/api/admin/logout", { method: "POST" });
+                await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
                 setAuthed(false);
               }}
             >
@@ -328,27 +335,49 @@ function AdminPage() {
             className="mt-6 grid md:grid-cols-3 gap-4 items-end"
             onSubmit={async (e) => {
               e.preventDefault();
-              setBusy(true);
+              if (!startAt || !endAt) {
+                setSlotsMsg("Укажи дату и время начала и конца");
+                return;
+              }
+              const start = new Date(startAt);
+              const end = new Date(endAt);
+              if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+                setSlotsMsg("Некорректная дата или время");
+                return;
+              }
+              if (end <= start) {
+                setSlotsMsg("Конец должен быть позже начала");
+                return;
+              }
+              setSlotsBusy(true);
+              setSlotsMsg(null);
               try {
                 const res = await fetch("/api/admin/slots", {
                   method: "POST",
+                  credentials: "include",
                   headers: { "content-type": "application/json" },
                   body: JSON.stringify({
-                    startAt: startAt ? new Date(startAt).toISOString() : undefined,
-                    endAt: endAt ? new Date(endAt).toISOString() : undefined,
+                    startAt: start.toISOString(),
+                    endAt: end.toISOString(),
                     notes: notes.trim() ? notes.trim() : undefined,
                   }),
                 });
                 const data = (await res.json()) as { error?: string };
-                if (!res.ok) throw new Error(data.error ?? "Failed to create slot");
+                if (!res.ok) {
+                  throw new Error(
+                    data.error ??
+                      (res.status === 401 ? "Войди в админку заново" : "Не удалось создать слот"),
+                  );
+                }
                 setStartAt("");
                 setEndAt("");
                 setNotes("");
+                setSlotsMsg("Слот добавлен");
                 await refresh();
               } catch (err) {
-                alert(err instanceof Error ? err.message : "Ошибка");
+                setSlotsMsg(err instanceof Error ? err.message : "Ошибка");
               } finally {
-                setBusy(false);
+                setSlotsBusy(false);
               }
             }}
           >
@@ -356,6 +385,7 @@ function AdminPage() {
               <span className="text-muted-foreground">Начало</span>
               <input
                 type="datetime-local"
+                required
                 value={startAt}
                 onChange={(e) => setStartAt(e.target.value)}
                 className="rounded-full px-5 py-3 bg-background/80 border border-border outline-none"
@@ -365,6 +395,7 @@ function AdminPage() {
               <span className="text-muted-foreground">Конец</span>
               <input
                 type="datetime-local"
+                required
                 value={endAt}
                 onChange={(e) => setEndAt(e.target.value)}
                 className="rounded-full px-5 py-3 bg-background/80 border border-border outline-none"
@@ -380,12 +411,14 @@ function AdminPage() {
               />
             </label>
             <button
-              disabled={busy || !startAt || !endAt}
+              type="submit"
+              disabled={slotsBusy || !startAt || !endAt}
               className="rounded-full px-6 py-3 bg-foreground text-background transition disabled:opacity-60 md:col-span-3"
             >
               Добавить слот
             </button>
           </form>
+          {slotsMsg ? <p className="mt-3 text-sm text-muted-foreground">{slotsMsg}</p> : null}
 
           <div className="mt-6 overflow-auto">
             <table className="w-full text-sm">

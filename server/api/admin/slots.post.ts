@@ -10,12 +10,19 @@ export default defineEventHandler(async (event) => {
     return { error: "Unauthorized" };
   }
 
-  const body = (await readBody(event)) as {
+  // Prefer Request.json() — readBody can be empty when routed via TanStack Start + h3.
+  let body: {
     startAt?: string;
     endAt?: string;
     capacity?: number;
     notes?: string;
   };
+  const contentType = event.req.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    body = (await event.req.json()) as typeof body;
+  } else {
+    body = (await readBody(event)) as typeof body;
+  }
 
   if (!body.startAt || !body.endAt) {
     event.node.res.statusCode = 400;
