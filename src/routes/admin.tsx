@@ -64,6 +64,20 @@ function AdminPage() {
 
   const fetchOpts: RequestInit = { credentials: "include" };
 
+  async function readApiJson(res: Response): Promise<{ error?: string; ok?: boolean }> {
+    const text = await res.text();
+    if (!text.trim()) return {};
+    try {
+      return JSON.parse(text) as { error?: string; ok?: boolean };
+    } catch {
+      throw new Error(
+        res.ok
+          ? "Неверный ответ сервера"
+          : `Ошибка сервера (${res.status}). Обновите страницу или перезапустите приложение на VPS.`,
+      );
+    }
+  }
+
   async function refresh() {
     const me = await fetch("/api/admin/me", fetchOpts).then(
       (r) => r.json() as Promise<{ authed: boolean }>,
@@ -308,8 +322,11 @@ function AdminPage() {
                       if (!confirm("Удалить эту работу и файл?")) return;
                       setBusy(true);
                       try {
-                        const res = await fetch(`/api/admin/gallery/${g.id}`, { method: "DELETE" });
-                        const data = (await res.json()) as { ok?: boolean; error?: string };
+                        const res = await fetch(`/api/admin/gallery/${g.id}`, {
+                          method: "DELETE",
+                          credentials: "include",
+                        });
+                        const data = await readApiJson(res);
                         if (!res.ok) throw new Error(data.error ?? "Ошибка удаления");
                         await refresh();
                       } catch (err) {
@@ -457,11 +474,13 @@ function AdminPage() {
                           if (!confirm("Удалить этот слот?")) return;
                           setBusy(true);
                           try {
-                            const res = await fetch(`/api/admin/slots/${s.id}`, {
-                              method: "DELETE",
+                            const res = await fetch("/api/admin/slots/remove", {
+                              method: "POST",
                               credentials: "include",
+                              headers: { "content-type": "application/json" },
+                              body: JSON.stringify({ id: s.id }),
                             });
-                            const data = (await res.json()) as { error?: string };
+                            const data = await readApiJson(res);
                             if (!res.ok) throw new Error(data.error ?? "Не удалось удалить");
                             await refresh();
                           } catch (err) {
@@ -522,11 +541,13 @@ function AdminPage() {
                           if (!confirm("Удалить эту запись?")) return;
                           setBusy(true);
                           try {
-                            const res = await fetch(`/api/admin/bookings/${b.id}`, {
-                              method: "DELETE",
+                            const res = await fetch("/api/admin/bookings/remove", {
+                              method: "POST",
                               credentials: "include",
+                              headers: { "content-type": "application/json" },
+                              body: JSON.stringify({ id: b.id }),
                             });
-                            const data = (await res.json()) as { error?: string };
+                            const data = await readApiJson(res);
                             if (!res.ok) throw new Error(data.error ?? "Не удалось удалить");
                             await refresh();
                           } catch (err) {
