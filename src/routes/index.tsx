@@ -531,10 +531,20 @@ function Contact() {
     return slots.map((s) => {
       const start = new Date(s.startAt);
       const end = new Date(s.endAt);
-      const label = `${start.toLocaleString()} — ${end.toLocaleTimeString()}`;
+      const label = `${start.toLocaleString("ru-RU")} — ${end.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}`;
       return { value: s.id, label };
     });
   }, [slots]);
+
+  const needsSlotPicker = plan === "single";
+
+  useEffect(() => {
+    if (plan === "single" && slots.length > 0) {
+      setSlotId((prev) => (prev && slots.some((s) => s.id === prev) ? prev : slots[0]!.id));
+    } else {
+      setSlotId("");
+    }
+  }, [plan, slots]);
 
   return (
     <section id="contact" className="py-28 px-6">
@@ -552,6 +562,11 @@ function Contact() {
           onSubmit={async (e) => {
             e.preventDefault();
 
+            if (plan === "single" && !slotId) {
+              setSubmitError("Выберите время занятия");
+              return;
+            }
+
             setSubmitting(true);
             setSubmitError(null);
             setSuccessBookingId(null);
@@ -564,7 +579,7 @@ function Contact() {
                   email,
                   phone,
                   telegramHandle: telegramHandle.trim() ? telegramHandle.trim() : undefined,
-                  slotId,
+                  ...(plan === "single" ? { slotId } : {}),
                   plan,
                 }),
               });
@@ -636,25 +651,33 @@ function Contact() {
               <option value="pack5">Пакет 5 уроков · 2 796 ₽</option>
               <option value="pack10">Пакет 10 уроков · 4 893 ₽</option>
             </select>
-            <select
-              required
-              value={slotId}
-              onChange={(e) => setSlotId(e.target.value)}
-              disabled={slotsLoading || slotOptions.length === 0}
-              className="rounded-full px-6 py-4 bg-background/80 border border-border focus:border-foreground/40 outline-none transition disabled:opacity-60"
-            >
-              {slotsLoading ? (
-                <option value="">Загрузка дат...</option>
-              ) : slotOptions.length === 0 ? (
-                <option value="">Пока нет свободных дат</option>
-              ) : (
-                slotOptions.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))
-              )}
-            </select>
+            {needsSlotPicker ? (
+              <select
+                required
+                value={slotId}
+                onChange={(e) => setSlotId(e.target.value)}
+                disabled={slotsLoading || slotOptions.length === 0}
+                className="rounded-full px-6 py-4 bg-background/80 border border-border focus:border-foreground/40 outline-none transition disabled:opacity-60"
+              >
+                {slotsLoading ? (
+                  <option value="">Загрузка дат...</option>
+                ) : slotOptions.length === 0 ? (
+                  <option value="">Пока нет свободных дат</option>
+                ) : (
+                  slotOptions.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))
+                )}
+              </select>
+            ) : (
+              <div className="rounded-3xl px-6 py-4 bg-background/80 border border-border text-sm text-muted-foreground leading-relaxed">
+                {plan === "pack5"
+                  ? "Мы подберём для вас оптимальное время занятия и свяжемся с вами по email или в Telegram."
+                  : "После оплаты вы сможете выбрать удобное время для занятий в Telegram."}
+              </div>
+            )}
           </div>
           <select
             required
@@ -685,7 +708,7 @@ function Contact() {
           )}
           <button
             type="submit"
-            disabled={submitting || slotsLoading || !slotId}
+            disabled={submitting || (needsSlotPicker && (slotsLoading || !slotId))}
             className="justify-self-center rounded-full px-10 py-4 bg-foreground text-background hover:scale-[1.03] transition shadow-elegant disabled:opacity-60 disabled:hover:scale-100"
           >
             {submitting ? "Создаю..." : "Перейти к оплате"}

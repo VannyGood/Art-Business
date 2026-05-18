@@ -24,6 +24,21 @@ function amountRubForPlan(plan: CreateBookingBody["plan"]): number {
   }
 }
 
+function placeholderAppointment() {
+  const start = new Date();
+  start.setUTCDate(start.getUTCDate() + 14);
+  start.setUTCHours(12, 0, 0, 0);
+  const end = new Date(start);
+  end.setUTCHours(13, 0, 0, 0);
+  return { start, end };
+}
+
+function bookingNotesForPlan(plan: CreateBookingBody["plan"]): string | undefined {
+  if (plan === "pack5") return "Пакет 5 уроков — время подберёт преподаватель";
+  if (plan === "pack10") return "Пакет 10 уроков — время выберете позже";
+  return undefined;
+}
+
 export default defineEventHandler(async (event) => {
   const db = getDb();
   const body = (await readBody(event)) as Partial<CreateBookingBody>;
@@ -32,7 +47,6 @@ export default defineEventHandler(async (event) => {
     !body.customerName ||
     !body.email ||
     !body.phone ||
-    !body.slotId ||
     !body.plan ||
     !["single", "pack5", "pack10"].includes(body.plan)
   ) {
@@ -40,19 +54,36 @@ export default defineEventHandler(async (event) => {
     return { error: "Invalid request" };
   }
 
-  const [slot] = await db
-    .select({
-      id: adminAvailabilitySlots.id,
-      startAt: adminAvailabilitySlots.startAt,
-      endAt: adminAvailabilitySlots.endAt,
-    })
-    .from(adminAvailabilitySlots)
-    .where(eq(adminAvailabilitySlots.id, body.slotId))
-    .limit(1);
+  const isSingle = body.plan === "single";
+  if (isSingle && !body.slotId) {
+    event.node.res.statusCode = 400;
+    return { error: "Выберите время занятия" };
+  }
 
-  if (!slot) {
-    event.node.res.statusCode = 404;
-    return { error: "Slot not found" };
+  let appointmentStartAt: Date;
+  let appointmentEndAt: Date;
+
+  if (isSingle) {
+    const [slot] = await db
+      .select({
+        id: adminAvailabilitySlots.id,
+        startAt: adminAvailabilitySlots.startAt,
+        endAt: adminAvailabilitySlots.endAt,
+      })
+      .from(adminAvailabilitySlots)
+      .where(eq(adminAvailabilitySlots.id, body.slotId!))
+      .limit(1);
+
+    if (!slot) {
+      event.node.res.statusCode = 404;
+      return { error: "Slot not found" };
+    }
+    appointmentStartAt = slot.startAt;
+    appointmentEndAt = slot.endAt;
+  } else {
+    const placeholder = placeholderAppointment();
+    appointmentStartAt = placeholder.start;
+    appointmentEndAt = placeholder.end;
   }
 
   const amountRub = amountRubForPlan(body.plan);
@@ -64,9 +95,10 @@ export default defineEventHandler(async (event) => {
       email: body.email,
       phone: body.phone,
       telegramHandle: body.telegramHandle,
-      appointmentStartAt: slot.startAt,
-      appointmentEndAt: slot.endAt,
+      appointmentStartAt,
+      appointmentEndAt,
       status: "pending",
+      notes: bookingNotesForPlan(body.plan),
     })
     .returning({ id: bookings.id });
 

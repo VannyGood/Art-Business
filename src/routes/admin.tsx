@@ -47,9 +47,8 @@ function AdminPage() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
 
-  const [startDate, setStartDate] = useState("");
+  const [slotDate, setSlotDate] = useState("");
   const [startTime, setStartTime] = useState("10:00");
-  const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("11:00");
   const [notes, setNotes] = useState("");
   const [slotsBusy, setSlotsBusy] = useState(false);
@@ -337,12 +336,12 @@ function AdminPage() {
             className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end"
             onSubmit={async (e) => {
               e.preventDefault();
-              if (!startDate || !startTime || !endDate || !endTime) {
-                setSlotsMsg("Укажи дату и время начала и конца");
+              if (!slotDate || !startTime || !endTime) {
+                setSlotsMsg("Укажи дату, время начала и конца");
                 return;
               }
-              const start = new Date(`${startDate}T${startTime}`);
-              const end = new Date(`${endDate}T${endTime}`);
+              const start = new Date(`${slotDate}T${startTime}`);
+              const end = new Date(`${slotDate}T${endTime}`);
               if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
                 setSlotsMsg("Некорректная дата или время");
                 return;
@@ -371,9 +370,8 @@ function AdminPage() {
                       (res.status === 401 ? "Войди в админку заново" : "Не удалось создать слот"),
                   );
                 }
-                setStartDate("");
+                setSlotDate("");
                 setStartTime("10:00");
-                setEndDate("");
                 setEndTime("11:00");
                 setNotes("");
                 setSlotsMsg("Слот добавлен");
@@ -386,17 +384,17 @@ function AdminPage() {
             }}
           >
             <label className="grid gap-2 text-sm">
-              <span className="text-muted-foreground">Начало (дата)</span>
+              <span className="text-muted-foreground">Дата</span>
               <input
                 type="date"
                 required
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                value={slotDate}
+                onChange={(e) => setSlotDate(e.target.value)}
                 className="rounded-full px-5 py-3 bg-background/80 border border-border outline-none"
               />
             </label>
             <label className="grid gap-2 text-sm">
-              <span className="text-muted-foreground">Начало (время)</span>
+              <span className="text-muted-foreground">Начало</span>
               <input
                 type="time"
                 required
@@ -406,17 +404,7 @@ function AdminPage() {
               />
             </label>
             <label className="grid gap-2 text-sm">
-              <span className="text-muted-foreground">Конец (дата)</span>
-              <input
-                type="date"
-                required
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="rounded-full px-5 py-3 bg-background/80 border border-border outline-none"
-              />
-            </label>
-            <label className="grid gap-2 text-sm">
-              <span className="text-muted-foreground">Конец (время)</span>
+              <span className="text-muted-foreground">Конец</span>
               <input
                 type="time"
                 required
@@ -436,9 +424,7 @@ function AdminPage() {
             </label>
             <button
               type="submit"
-              disabled={
-                slotsBusy || !startDate || !startTime || !endDate || !endTime
-              }
+              disabled={slotsBusy || !slotDate || !startTime || !endTime}
               className="rounded-full px-6 py-3 bg-foreground text-background transition disabled:opacity-60 md:col-span-3"
             >
               Добавить слот
@@ -453,6 +439,7 @@ function AdminPage() {
                   <th className="text-left py-2">Начало</th>
                   <th className="text-left py-2">Конец</th>
                   <th className="text-left py-2">Заметка</th>
+                  <th className="text-right py-2" />
                 </tr>
               </thead>
               <tbody>
@@ -461,11 +448,37 @@ function AdminPage() {
                     <td className="py-2">{s.start}</td>
                     <td className="py-2">{s.end}</td>
                     <td className="py-2">{s.notes ?? "—"}</td>
+                    <td className="py-2 text-right">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        className="text-sm text-destructive hover:underline disabled:opacity-50"
+                        onClick={async () => {
+                          if (!confirm("Удалить этот слот?")) return;
+                          setBusy(true);
+                          try {
+                            const res = await fetch(`/api/admin/slots/${s.id}`, {
+                              method: "DELETE",
+                              credentials: "include",
+                            });
+                            const data = (await res.json()) as { error?: string };
+                            if (!res.ok) throw new Error(data.error ?? "Не удалось удалить");
+                            await refresh();
+                          } catch (err) {
+                            alert(err instanceof Error ? err.message : "Ошибка");
+                          } finally {
+                            setBusy(false);
+                          }
+                        }}
+                      >
+                        Удалить
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {slotRows.length === 0 && (
                   <tr>
-                    <td className="py-3 text-muted-foreground" colSpan={3}>
+                    <td className="py-3 text-muted-foreground" colSpan={4}>
                       Пока нет слотов
                     </td>
                   </tr>
@@ -485,6 +498,7 @@ function AdminPage() {
                   <th className="text-left py-2">Имя</th>
                   <th className="text-left py-2">Статус</th>
                   <th className="text-left py-2">Оплата</th>
+                  <th className="text-right py-2" />
                 </tr>
               </thead>
               <tbody>
@@ -499,11 +513,37 @@ function AdminPage() {
                     <td className="py-2">
                       {b.paymentStatus ? `${b.paymentStatus} · ${b.amountRub ?? ""}₽` : "—"}
                     </td>
+                    <td className="py-2 text-right">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        className="text-sm text-destructive hover:underline disabled:opacity-50"
+                        onClick={async () => {
+                          if (!confirm("Удалить эту запись?")) return;
+                          setBusy(true);
+                          try {
+                            const res = await fetch(`/api/admin/bookings/${b.id}`, {
+                              method: "DELETE",
+                              credentials: "include",
+                            });
+                            const data = (await res.json()) as { error?: string };
+                            if (!res.ok) throw new Error(data.error ?? "Не удалось удалить");
+                            await refresh();
+                          } catch (err) {
+                            alert(err instanceof Error ? err.message : "Ошибка");
+                          } finally {
+                            setBusy(false);
+                          }
+                        }}
+                      >
+                        Удалить
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {bookingRows.length === 0 && (
                   <tr>
-                    <td className="py-3 text-muted-foreground" colSpan={4}>
+                    <td className="py-3 text-muted-foreground" colSpan={5}>
                       Пока нет записей
                     </td>
                   </tr>
