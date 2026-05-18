@@ -47,8 +47,10 @@ function AdminPage() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
 
-  const [startAt, setStartAt] = useState("");
-  const [endAt, setEndAt] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [startTime, setStartTime] = useState("10:00");
+  const [endDate, setEndDate] = useState("");
+  const [endTime, setEndTime] = useState("11:00");
   const [notes, setNotes] = useState("");
   const [slotsBusy, setSlotsBusy] = useState(false);
   const [slotsMsg, setSlotsMsg] = useState<string | null>(null);
@@ -332,15 +334,15 @@ function AdminPage() {
         <section className="mt-10 glass rounded-3xl p-8 shadow-soft">
           <h2 className="text-xl font-display">Свободные слоты</h2>
           <form
-            className="mt-6 grid md:grid-cols-3 gap-4 items-end"
+            className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end"
             onSubmit={async (e) => {
               e.preventDefault();
-              if (!startAt || !endAt) {
+              if (!startDate || !startTime || !endDate || !endTime) {
                 setSlotsMsg("Укажи дату и время начала и конца");
                 return;
               }
-              const start = new Date(startAt);
-              const end = new Date(endAt);
+              const start = new Date(`${startDate}T${startTime}`);
+              const end = new Date(`${endDate}T${endTime}`);
               if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
                 setSlotsMsg("Некорректная дата или время");
                 return;
@@ -369,8 +371,10 @@ function AdminPage() {
                       (res.status === 401 ? "Войди в админку заново" : "Не удалось создать слот"),
                   );
                 }
-                setStartAt("");
-                setEndAt("");
+                setStartDate("");
+                setStartTime("10:00");
+                setEndDate("");
+                setEndTime("11:00");
                 setNotes("");
                 setSlotsMsg("Слот добавлен");
                 await refresh();
@@ -382,22 +386,42 @@ function AdminPage() {
             }}
           >
             <label className="grid gap-2 text-sm">
-              <span className="text-muted-foreground">Начало</span>
+              <span className="text-muted-foreground">Начало (дата)</span>
               <input
-                type="datetime-local"
+                type="date"
                 required
-                value={startAt}
-                onChange={(e) => setStartAt(e.target.value)}
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
                 className="rounded-full px-5 py-3 bg-background/80 border border-border outline-none"
               />
             </label>
             <label className="grid gap-2 text-sm">
-              <span className="text-muted-foreground">Конец</span>
+              <span className="text-muted-foreground">Начало (время)</span>
               <input
-                type="datetime-local"
+                type="time"
                 required
-                value={endAt}
-                onChange={(e) => setEndAt(e.target.value)}
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="rounded-full px-5 py-3 bg-background/80 border border-border outline-none"
+              />
+            </label>
+            <label className="grid gap-2 text-sm">
+              <span className="text-muted-foreground">Конец (дата)</span>
+              <input
+                type="date"
+                required
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="rounded-full px-5 py-3 bg-background/80 border border-border outline-none"
+              />
+            </label>
+            <label className="grid gap-2 text-sm">
+              <span className="text-muted-foreground">Конец (время)</span>
+              <input
+                type="time"
+                required
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
                 className="rounded-full px-5 py-3 bg-background/80 border border-border outline-none"
               />
             </label>
@@ -412,7 +436,9 @@ function AdminPage() {
             </label>
             <button
               type="submit"
-              disabled={slotsBusy || !startAt || !endAt}
+              disabled={
+                slotsBusy || !startDate || !startTime || !endDate || !endTime
+              }
               className="rounded-full px-6 py-3 bg-foreground text-background transition disabled:opacity-60 md:col-span-3"
             >
               Добавить слот
