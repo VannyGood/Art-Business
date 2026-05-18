@@ -1,0 +1,89 @@
+import { defineEventHandler, readBody } from "h3";
+import { eq } from "drizzle-orm";
+
+import { getDb } from "../../src/db/client";
+import { adminAvailabilitySlots, bookings, payments } from "../../src/db/schema";
+
+type CreateBookingBody = {
+  customerName: string;
+  email: string;
+  phone: string;
+  telegramHandle?: string;
+  slotId: string;
+  plan: "single" | "pack5" | "pack10";
+};
+
+function amountRubForPlan(plan: CreateBookingBody["plan"]): number {
+  switch (plan) {
+    case "single":
+      return 699;
+    case "pack5":
+      return 2796;
+    case "pack10":
+      return 4893;
+  }
+}
+
+export default defineEventHandler(async (event) => {
+  const db = getDb();
+  const body = (await readBody(event)) as Partial<CreateBookingBody>;
+
+  if (
+    !body.customerName ||
+    !body.email ||
+    !body.phone ||
+    !body.slotId ||
+    !body.plan ||
+    !["single", "pack5", "pack10"].includes(body.plan)
+  ) {
+    event.node.res.statusCode = 400;
+    return { error: "Invalid request" };
+  }
+
+  const [slot] = await db
+    .select({
+      id: adminAvailabilitySlots.id,
+      startAt: adminAvailabilitySlots.startAt,
+      endAt: adminAvailabilitySlots.endAt,
+    })
+    .from(adminAvailabilitySlots)
+    .where(eq(adminAvailabilitySlots.id, body.slotId))
+    .limit(1);
+
+  if (!slot) {
+    event.node.res.statusCode = 404;
+    return { error: "Slot not found" };
+  }
+
+  const amountRub = amountRubForPlan(body.plan);
+
+  const [booking] = await db
+    .insert(bookings)
+    .values({
+      customerName: body.customerName,
+      email: body.email,
+      phone: body.phone,
+      telegramHandle: body.telegramHandle,
+      appointmentStartAt: slot.startAt,
+      appointmentEndAt: slot.endAt,
+      status: "pending",
+    })
+    .returning({ id: bookings.id });
+
+  const [payment] = await db
+    .insert(payments)
+    .values({
+      bookingId: booking.id,
+      provider: "card",
+      amountRub,
+      status: "created",
+      metadata: { plan: body.plan },
+    })
+    .returning({ id: payments.id });
+
+  return {
+    bookingId: booking.id,
+    paymentId: payment.id,
+    checkoutUrl: `/api/payments/${payment.id}/checkout`,
+  };
+});
