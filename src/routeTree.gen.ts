@@ -20,7 +20,9 @@ import { Route as ApiGalleryRouteImport } from './routes/api/gallery'
 import { Route as ApiBookingsRouteImport } from './routes/api/bookings'
 import { Route as ApiTelegramWebhookRouteImport } from './routes/api/telegram/webhook'
 import { Route as ApiCronRemindersRouteImport } from './routes/api/cron/reminders'
+import { Route as ApiAdminTestEmailRouteImport } from './routes/api/admin/test-email'
 import { Route as ApiAdminSlotsRouteImport } from './routes/api/admin/slots'
+import { Route as ApiAdminResendPaymentEmailRouteImport } from './routes/api/admin/resend-payment-email'
 import { Route as ApiAdminMeRouteImport } from './routes/api/admin/me'
 import { Route as ApiAdminLogoutRouteImport } from './routes/api/admin/logout'
 import { Route as ApiAdminLoginRouteImport } from './routes/api/admin/login'
@@ -91,11 +93,22 @@ const ApiCronRemindersRoute = ApiCronRemindersRouteImport.update({
   path: '/api/cron/reminders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminTestEmailRoute = ApiAdminTestEmailRouteImport.update({
+  id: '/api/admin/test-email',
+  path: '/api/admin/test-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminSlotsRoute = ApiAdminSlotsRouteImport.update({
   id: '/api/admin/slots',
   path: '/api/admin/slots',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminResendPaymentEmailRoute =
+  ApiAdminResendPaymentEmailRouteImport.update({
+    id: '/api/admin/resend-payment-email',
+    path: '/api/admin/resend-payment-email',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminMeRoute = ApiAdminMeRouteImport.update({
   id: '/api/admin/me',
   path: '/api/admin/me',
@@ -186,7 +199,9 @@ export interface FileRoutesByFullPath {
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
   '/api/admin/me': typeof ApiAdminMeRoute
+  '/api/admin/resend-payment-email': typeof ApiAdminResendPaymentEmailRoute
   '/api/admin/slots': typeof ApiAdminSlotsRouteWithChildren
+  '/api/admin/test-email': typeof ApiAdminTestEmailRoute
   '/api/cron/reminders': typeof ApiCronRemindersRoute
   '/api/telegram/webhook': typeof ApiTelegramWebhookRoute
   '/api/admin/bookings/$id': typeof ApiAdminBookingsIdRoute
@@ -214,7 +229,9 @@ export interface FileRoutesByTo {
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
   '/api/admin/me': typeof ApiAdminMeRoute
+  '/api/admin/resend-payment-email': typeof ApiAdminResendPaymentEmailRoute
   '/api/admin/slots': typeof ApiAdminSlotsRouteWithChildren
+  '/api/admin/test-email': typeof ApiAdminTestEmailRoute
   '/api/cron/reminders': typeof ApiCronRemindersRoute
   '/api/telegram/webhook': typeof ApiTelegramWebhookRoute
   '/api/admin/bookings/$id': typeof ApiAdminBookingsIdRoute
@@ -243,7 +260,9 @@ export interface FileRoutesById {
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
   '/api/admin/me': typeof ApiAdminMeRoute
+  '/api/admin/resend-payment-email': typeof ApiAdminResendPaymentEmailRoute
   '/api/admin/slots': typeof ApiAdminSlotsRouteWithChildren
+  '/api/admin/test-email': typeof ApiAdminTestEmailRoute
   '/api/cron/reminders': typeof ApiCronRemindersRoute
   '/api/telegram/webhook': typeof ApiTelegramWebhookRoute
   '/api/admin/bookings/$id': typeof ApiAdminBookingsIdRoute
@@ -273,7 +292,9 @@ export interface FileRouteTypes {
     | '/api/admin/login'
     | '/api/admin/logout'
     | '/api/admin/me'
+    | '/api/admin/resend-payment-email'
     | '/api/admin/slots'
+    | '/api/admin/test-email'
     | '/api/cron/reminders'
     | '/api/telegram/webhook'
     | '/api/admin/bookings/$id'
@@ -301,7 +322,9 @@ export interface FileRouteTypes {
     | '/api/admin/login'
     | '/api/admin/logout'
     | '/api/admin/me'
+    | '/api/admin/resend-payment-email'
     | '/api/admin/slots'
+    | '/api/admin/test-email'
     | '/api/cron/reminders'
     | '/api/telegram/webhook'
     | '/api/admin/bookings/$id'
@@ -329,7 +352,9 @@ export interface FileRouteTypes {
     | '/api/admin/login'
     | '/api/admin/logout'
     | '/api/admin/me'
+    | '/api/admin/resend-payment-email'
     | '/api/admin/slots'
+    | '/api/admin/test-email'
     | '/api/cron/reminders'
     | '/api/telegram/webhook'
     | '/api/admin/bookings/$id'
@@ -358,7 +383,9 @@ export interface RootRouteChildren {
   ApiAdminLoginRoute: typeof ApiAdminLoginRoute
   ApiAdminLogoutRoute: typeof ApiAdminLogoutRoute
   ApiAdminMeRoute: typeof ApiAdminMeRoute
+  ApiAdminResendPaymentEmailRoute: typeof ApiAdminResendPaymentEmailRoute
   ApiAdminSlotsRoute: typeof ApiAdminSlotsRouteWithChildren
+  ApiAdminTestEmailRoute: typeof ApiAdminTestEmailRoute
   ApiCronRemindersRoute: typeof ApiCronRemindersRoute
   ApiTelegramWebhookRoute: typeof ApiTelegramWebhookRoute
   ApiPaymentsPaymentIdCheckoutRoute: typeof ApiPaymentsPaymentIdCheckoutRoute
@@ -446,11 +473,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/test-email': {
+      id: '/api/admin/test-email'
+      path: '/api/admin/test-email'
+      fullPath: '/api/admin/test-email'
+      preLoaderRoute: typeof ApiAdminTestEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/slots': {
       id: '/api/admin/slots'
       path: '/api/admin/slots'
       fullPath: '/api/admin/slots'
       preLoaderRoute: typeof ApiAdminSlotsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/resend-payment-email': {
+      id: '/api/admin/resend-payment-email'
+      path: '/api/admin/resend-payment-email'
+      fullPath: '/api/admin/resend-payment-email'
+      preLoaderRoute: typeof ApiAdminResendPaymentEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/me': {
@@ -608,7 +649,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminLoginRoute: ApiAdminLoginRoute,
   ApiAdminLogoutRoute: ApiAdminLogoutRoute,
   ApiAdminMeRoute: ApiAdminMeRoute,
+  ApiAdminResendPaymentEmailRoute: ApiAdminResendPaymentEmailRoute,
   ApiAdminSlotsRoute: ApiAdminSlotsRouteWithChildren,
+  ApiAdminTestEmailRoute: ApiAdminTestEmailRoute,
   ApiCronRemindersRoute: ApiCronRemindersRoute,
   ApiTelegramWebhookRoute: ApiTelegramWebhookRoute,
   ApiPaymentsPaymentIdCheckoutRoute: ApiPaymentsPaymentIdCheckoutRoute,

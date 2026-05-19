@@ -97,6 +97,10 @@ async function notifyPaymentPaidEmail(db: Db, paymentId: string): Promise<void> 
   });
 }
 
+export async function notifyPaymentPaidEmailOnly(db: Db, paymentId: string): Promise<void> {
+  await notifyPaymentPaidEmail(db, paymentId);
+}
+
 /** Email (основной канал) + Telegram по желанию, если настроен. */
 export async function notifyPaymentPaid(db: Db, paymentId: string): Promise<void> {
   await notifyPaymentPaidEmail(db, paymentId);
