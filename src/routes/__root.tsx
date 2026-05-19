@@ -79,6 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Авторские онлайн-уроки рисования и живописи с художницей Алёной. Найди своего внутреннего художника.",
       },
       { name: "author", content: "Алёна" },
+      { name: "apay-tag", content: "7ZBS2JYE25OL4OO3WHR263R26TP727RY" },
       { property: "og:title", content: "Алёна — онлайн-уроки рисования и живописи" },
       {
         property: "og:description",
