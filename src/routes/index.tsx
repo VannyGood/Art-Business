@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import heroBg from "@/assets/hero.jpg";
 import portrait from "@/assets/portrait.jpg";
+import { formatPriceRub, amountRubForPlan } from "@/lib/pricing";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -315,21 +316,21 @@ function Pricing() {
   const plans = [
     {
       name: "Один урок",
-      price: "699 ₽",
+      price: formatPriceRub(amountRubForPlan("single")),
       per: "/ 60 минут",
       features: ["Индивидуальный онлайн-урок", "Разбор твоей работы", "Доступ к материалам"],
       featured: false,
     },
     {
       name: "Пакет 5 уроков",
-      price: "2 796 ₽",
+      price: formatPriceRub(amountRubForPlan("pack5")),
       per: "− 20% выгоды",
       features: ["5 уроков в удобное время", "Личная программа", "Чат поддержки между уроками"],
       featured: true,
     },
     {
       name: "Пакет 10 уроков",
-      price: "4 893 ₽",
+      price: formatPriceRub(amountRubForPlan("pack10")),
       per: "− 30% выгоды",
       features: [
         "10 уроков по твоему ритму",
@@ -647,9 +648,9 @@ function Contact() {
               onChange={(e) => setPlan(e.target.value as typeof plan)}
               className="rounded-full px-6 py-4 bg-background/80 border border-border focus:border-foreground/40 outline-none transition"
             >
-              <option value="single">Один урок · 699 ₽</option>
-              <option value="pack5">Пакет 5 уроков · 2 796 ₽</option>
-              <option value="pack10">Пакет 10 уроков · 4 893 ₽</option>
+              <option value="single">Один урок · {formatPriceRub(amountRubForPlan("single"))}</option>
+              <option value="pack5">Пакет 5 уроков · {formatPriceRub(amountRubForPlan("pack5"))}</option>
+              <option value="pack10">Пакет 10 уроков · {formatPriceRub(amountRubForPlan("pack10"))}</option>
             </select>
             {needsSlotPicker ? (
               <select

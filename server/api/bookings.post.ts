@@ -1,6 +1,7 @@
 import { defineEventHandler, readBody } from "h3";
 import { eq } from "drizzle-orm";
 
+import { amountRubForPlan } from "../../src/lib/pricing";
 import { getDb } from "../../src/db/client";
 import { adminAvailabilitySlots, bookings, payments } from "../../src/db/schema";
 
@@ -12,17 +13,6 @@ type CreateBookingBody = {
   slotId: string;
   plan: "single" | "pack5" | "pack10";
 };
-
-function amountRubForPlan(plan: CreateBookingBody["plan"]): number {
-  switch (plan) {
-    case "single":
-      return 699;
-    case "pack5":
-      return 2796;
-    case "pack10":
-      return 4893;
-  }
-}
 
 function placeholderAppointment() {
   const start = new Date();
