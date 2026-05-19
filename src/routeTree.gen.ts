@@ -13,6 +13,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PaymentSuccessRouteImport } from './routes/payment/success'
 import { Route as PaymentCancelRouteImport } from './routes/payment/cancel'
+import { Route as PaymentPaymentIdRouteImport } from './routes/payment/$paymentId'
 import { Route as GallerySplatRouteImport } from './routes/gallery.$'
 import { Route as ApiSlotsRouteImport } from './routes/api/slots'
 import { Route as ApiGalleryRouteImport } from './routes/api/gallery'
@@ -53,6 +54,11 @@ const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
 const PaymentCancelRoute = PaymentCancelRouteImport.update({
   id: '/payment/cancel',
   path: '/payment/cancel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentPaymentIdRoute = PaymentPaymentIdRouteImport.update({
+  id: '/payment/$paymentId',
+  path: '/payment/$paymentId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GallerySplatRoute = GallerySplatRouteImport.update({
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/api/gallery': typeof ApiGalleryRoute
   '/api/slots': typeof ApiSlotsRoute
   '/gallery/$': typeof GallerySplatRoute
+  '/payment/$paymentId': typeof PaymentPaymentIdRoute
   '/payment/cancel': typeof PaymentCancelRoute
   '/payment/success': typeof PaymentSuccessRoute
   '/api/admin/bookings': typeof ApiAdminBookingsRouteWithChildren
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/api/gallery': typeof ApiGalleryRoute
   '/api/slots': typeof ApiSlotsRoute
   '/gallery/$': typeof GallerySplatRoute
+  '/payment/$paymentId': typeof PaymentPaymentIdRoute
   '/payment/cancel': typeof PaymentCancelRoute
   '/payment/success': typeof PaymentSuccessRoute
   '/api/admin/bookings': typeof ApiAdminBookingsRouteWithChildren
@@ -227,6 +235,7 @@ export interface FileRoutesById {
   '/api/gallery': typeof ApiGalleryRoute
   '/api/slots': typeof ApiSlotsRoute
   '/gallery/$': typeof GallerySplatRoute
+  '/payment/$paymentId': typeof PaymentPaymentIdRoute
   '/payment/cancel': typeof PaymentCancelRoute
   '/payment/success': typeof PaymentSuccessRoute
   '/api/admin/bookings': typeof ApiAdminBookingsRouteWithChildren
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/api/gallery'
     | '/api/slots'
     | '/gallery/$'
+    | '/payment/$paymentId'
     | '/payment/cancel'
     | '/payment/success'
     | '/api/admin/bookings'
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/api/gallery'
     | '/api/slots'
     | '/gallery/$'
+    | '/payment/$paymentId'
     | '/payment/cancel'
     | '/payment/success'
     | '/api/admin/bookings'
@@ -310,6 +321,7 @@ export interface FileRouteTypes {
     | '/api/gallery'
     | '/api/slots'
     | '/gallery/$'
+    | '/payment/$paymentId'
     | '/payment/cancel'
     | '/payment/success'
     | '/api/admin/bookings'
@@ -338,6 +350,7 @@ export interface RootRouteChildren {
   ApiGalleryRoute: typeof ApiGalleryRoute
   ApiSlotsRoute: typeof ApiSlotsRoute
   GallerySplatRoute: typeof GallerySplatRoute
+  PaymentPaymentIdRoute: typeof PaymentPaymentIdRoute
   PaymentCancelRoute: typeof PaymentCancelRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   ApiAdminBookingsRoute: typeof ApiAdminBookingsRouteWithChildren
@@ -382,6 +395,13 @@ declare module '@tanstack/react-router' {
       path: '/payment/cancel'
       fullPath: '/payment/cancel'
       preLoaderRoute: typeof PaymentCancelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/$paymentId': {
+      id: '/payment/$paymentId'
+      path: '/payment/$paymentId'
+      fullPath: '/payment/$paymentId'
+      preLoaderRoute: typeof PaymentPaymentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gallery/$': {
@@ -580,6 +600,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGalleryRoute: ApiGalleryRoute,
   ApiSlotsRoute: ApiSlotsRoute,
   GallerySplatRoute: GallerySplatRoute,
+  PaymentPaymentIdRoute: PaymentPaymentIdRoute,
   PaymentCancelRoute: PaymentCancelRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
   ApiAdminBookingsRoute: ApiAdminBookingsRouteWithChildren,

@@ -106,6 +106,6 @@ export default defineEventHandler(async (event) => {
   return {
     bookingId: booking.id,
     paymentId: payment.id,
-    checkoutUrl: `/api/payments/${payment.id}/checkout`,
+    checkoutUrl: `/payment/${payment.id}`,
   };
 });

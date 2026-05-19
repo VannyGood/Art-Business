@@ -45,7 +45,8 @@ export default defineEventHandler(async (event) => {
     <style>
       body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; max-width: 720px; margin: 0 auto; }
       .card { border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; }
-      button { border: 0; border-radius: 999px; padding: 12px 16px; background: #111827; color: white; cursor: pointer; }
+      button, .pay-btn { border: 0; border-radius: 999px; padding: 16px 24px; font-size: 16px; font-weight: 600; background: #111827; color: #fff !important; cursor: pointer; display: inline-block; min-width: 200px; }
+      a.pay-btn { text-decoration: none; text-align: center; }
       button:disabled { opacity: .6; cursor: not-allowed; }
       .muted { color: #6b7280; }
       .row { display:flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -64,10 +65,10 @@ export default defineEventHandler(async (event) => {
           ? `<p class="muted">По желанию — напоминание в Telegram: <a href="${connectUrl}" target="_blank" rel="noreferrer">Открыть бота</a></p>`
           : ""
       }
-      <div class="row">
-        <button id="payBtn">Оплатить (тест)</button>
-        <span class="muted">paymentId: <code>${row.paymentId}</code></span>
+      <div class="row" style="margin-top:20px">
+        <button type="button" id="payBtn" class="pay-btn">Оплатить (тест)</button>
       </div>
+      <p class="muted" style="margin-top:12px"><a href="/payment/${row.paymentId}">Открыть страницу оплаты на сайте</a></p>
       <p id="msg" class="muted"></p>
     </div>
     <script>
