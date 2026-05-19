@@ -636,12 +636,16 @@ function Contact() {
               className="rounded-full px-6 py-4 bg-background/80 border border-border focus:border-foreground/40 outline-none transition"
             />
             <input
-              placeholder="Telegram (например @username)"
+              placeholder="Telegram (@username)"
               value={telegramHandle}
               onChange={(e) => setTelegramHandle(e.target.value)}
               className="rounded-full px-6 py-4 bg-background/80 border border-border focus:border-foreground/40 outline-none transition"
             />
           </div>
+          <p className="text-sm text-muted-foreground -mt-2 px-2">
+            После оплаты открой бота по ссылке на странице оплаты — придёт сообщение, что скоро напишет
+            Алёна.
+          </p>
           <div className="grid md:grid-cols-2 gap-5">
             <select
               value={plan}

@@ -2,7 +2,8 @@ import { defineEventHandler } from "h3";
 import { eq } from "drizzle-orm";
 
 import { getDb } from "../../../../src/db/client";
-import { bookings, payments } from "../../../../src/db/schema";
+import { payments } from "../../../../src/db/schema";
+import { markBookingPaid, notifyPaymentPaidTelegram } from "../../../lib/payment-paid";
 
 export default defineEventHandler(async (event) => {
   const paymentId = event.context.params?.paymentId;
@@ -13,11 +14,7 @@ export default defineEventHandler(async (event) => {
 
   const db = getDb();
   const [p] = await db
-    .select({
-      id: payments.id,
-      status: payments.status,
-      bookingId: payments.bookingId,
-    })
+    .select({ id: payments.id, status: payments.status })
     .from(payments)
     .where(eq(payments.id, paymentId))
     .limit(1);
@@ -31,21 +28,10 @@ export default defineEventHandler(async (event) => {
     return { ok: true };
   }
 
-  await db
-    .update(payments)
-    .set({
-      status: "paid",
-      paidAt: new Date(),
-    })
-    .where(eq(payments.id, paymentId));
-
-  await db
-    .update(bookings)
-    .set({
-      status: "confirmed",
-      updatedAt: new Date(),
-    })
-    .where(eq(bookings.id, p.bookingId));
+  const marked = await markBookingPaid(db, paymentId);
+  if (marked) {
+    await notifyPaymentPaidTelegram(db, paymentId);
+  }
 
   return { ok: true };
 });

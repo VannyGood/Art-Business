@@ -85,7 +85,7 @@ Create `/var/www/aliona/.env` (mode `600`, owned by `aliona`):
 | `GALLERY_UPLOAD_DIR` | Recommended on VPS | Absolute path for uploaded gallery files, e.g. `/var/www/aliona/public/gallery` (must exist and be writable) |
 | `TELEGRAM_BOT_TOKEN` | Optional | Bot API token |
 | `TELEGRAM_BOT_USERNAME` | Optional | Bot username without `@` (checkout deep link) |
-| `TELEGRAM_ADMIN_CHAT_ID` | Optional | Your numeric chat ID for daily digest from cron |
+| `TELEGRAM_ADMIN_CHAT_ID` | Optional | Chat ID for **group** with you + bot (payment alerts + daily digest). Often looks like `-1001234567890` |
 | `CRON_SECRET` | Optional | Random secret; send as header `x-cron-secret` when calling the reminders endpoint |
 
 Example:
@@ -214,11 +214,31 @@ Certbot will install certificates and renew hooks automatically.
 ## 11. Telegram (optional)
 
 1. Create a bot with [@BotFather](https://t.me/BotFather), get `TELEGRAM_BOT_TOKEN` and set `TELEGRAM_BOT_USERNAME`.
-2. Set webhook URL to your public API (HTTPS required by Telegram):
+2. Create a **group**, add yourself and the bot. Post any message in the group, then open:
+
+   `https://api.telegram.org/bot<TOKEN>/getUpdates`
+
+   Find `"chat":{"id":-100...}` — that value is `TELEGRAM_ADMIN_CHAT_ID`.
+
+3. Set webhook URL (HTTPS required by Telegram):
 
    `https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://yourdomain.com/api/telegram/webhook`
 
-3. Set `TELEGRAM_ADMIN_CHAT_ID` for the daily reminders job (your chat ID with the bot).
+4. On VPS `.env`:
+
+   ```env
+   TELEGRAM_BOT_TOKEN=123456:ABC...
+   TELEGRAM_BOT_USERNAME=your_bot_name
+   TELEGRAM_ADMIN_CHAT_ID=-1001234567890
+   ```
+
+5. Run migration `0002` if the DB was created before telegram profile columns:
+
+   ```bash
+   npm run db:migrate
+   ```
+
+**Behaviour:** after test/real payment, the bot posts to the admin group (name, sum, @username from form, Telegram ID if the client pressed Start in the bot). If the client opened the bot from the checkout link, they get a Russian message that Alyona will write soon.
 
 ---
 

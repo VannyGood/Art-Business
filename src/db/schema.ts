@@ -50,6 +50,8 @@ export const telegramLinks = pgTable("telegram_links", {
   email: text("email"),
   phone: text("phone"),
   chatId: text("chat_id").notNull(),
+  telegramUserId: text("telegram_user_id"),
+  telegramUsername: text("telegram_username"),
   linkedAt: timestamp("linked_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
