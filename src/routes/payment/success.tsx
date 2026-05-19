@@ -10,7 +10,7 @@ function PaymentSuccessPage() {
       <div className="glass rounded-3xl p-10 max-w-md text-center shadow-soft">
         <h1 className="text-2xl font-display">Оплата прошла успешно</h1>
         <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-          Спасибо! Мы подтвердим запись и при необходимости напишем вам на email или в Telegram.
+          Спасибо! Подтверждение отправлено на ваш email — скоро с вами свяжется Алёна.
         </p>
         <Link
           to="/"

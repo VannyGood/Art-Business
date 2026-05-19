@@ -54,15 +54,15 @@ export default defineEventHandler(async (event) => {
   </head>
   <body>
     <h1>Оплата</h1>
-    <p class="muted">Пока это тестовая страница (заглушка) для карты/SBP. После оплаты Алёна получит уведомление в Telegram.</p>
+    <p class="muted">Пока это тестовая страница (заглушка) для карты/SBP. После оплаты вам придёт письмо на email.</p>
     <div class="card">
       <p><b>Сумма:</b> ${row.amountRub} ₽</p>
       <p><b>Занятие:</b> ${new Date(row.startAt).toLocaleString()}</p>
       <p><b>Статус:</b> <code id="status">${row.status}</code></p>
       ${
         connectUrl
-          ? `<p class="muted"><b>Важно:</b> нажми «Start» в боте — тогда придёт сообщение, что скоро напишет Алёна: <a href="${connectUrl}" target="_blank" rel="noreferrer">Открыть бота</a></p>`
-          : `<p class="muted">Чтобы получить сообщение от Алёны в Telegram, задай <code>TELEGRAM_BOT_USERNAME</code> на сервере.</p>`
+          ? `<p class="muted">По желанию — напоминание в Telegram: <a href="${connectUrl}" target="_blank" rel="noreferrer">Открыть бота</a></p>`
+          : ""
       }
       <div class="row">
         <button id="payBtn">Оплатить (тест)</button>

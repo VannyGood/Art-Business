@@ -83,9 +83,15 @@ Create `/var/www/aliona/.env` (mode `600`, owned by `aliona`):
 | `ADMIN_PASSWORD` | Yes | Admin login at `/admin` |
 | `ADMIN_SESSION_SECRET` | Yes | Long random string (32+ chars) for signing the admin cookie |
 | `GALLERY_UPLOAD_DIR` | Recommended on VPS | Absolute path for uploaded gallery files, e.g. `/var/www/aliona/public/gallery` (must exist and be writable) |
-| `TELEGRAM_BOT_TOKEN` | Optional | Bot API token |
-| `TELEGRAM_BOT_USERNAME` | Optional | Bot username without `@` (checkout deep link) |
-| `TELEGRAM_ADMIN_CHAT_ID` | Optional | Chat ID for **group** with you + bot (payment alerts + daily digest). Often looks like `-1001234567890` |
+| `SMTP_HOST` | For email | Default `smtp.mail.ru` |
+| `SMTP_PORT` | For email | Default `465` |
+| `SMTP_USER` | For email | Mail.ru login, e.g. `koroed.alena@mail.ru` |
+| `SMTP_PASS` | For email | [Пароль для внешних приложений](https://help.mail.ru/mail/security/protection/external) Mail.ru |
+| `SMTP_FROM` | Optional | From address (defaults to `SMTP_USER`) |
+| `ADMIN_EMAIL` | Optional | Payment alerts; default `koroed.alena@mail.ru` |
+| `TELEGRAM_BOT_TOKEN` | Optional | Bot API (reminders; not required for payment email) |
+| `TELEGRAM_BOT_USERNAME` | Optional | Bot username without `@` |
+| `TELEGRAM_ADMIN_CHAT_ID` | Optional | For Telegram cron digest only |
 | `CRON_SECRET` | Optional | Random secret; send as header `x-cron-secret` when calling the reminders endpoint |
 
 Example:
@@ -95,6 +101,11 @@ DATABASE_URL=postgresql://aliona:...@127.0.0.1:5432/aliona_art
 ADMIN_PASSWORD=...
 ADMIN_SESSION_SECRET=...
 GALLERY_UPLOAD_DIR=/var/www/aliona/public/gallery
+SMTP_HOST=smtp.mail.ru
+SMTP_PORT=465
+SMTP_USER=koroed.alena@mail.ru
+SMTP_PASS=your_mail_ru_app_password
+ADMIN_EMAIL=koroed.alena@mail.ru
 ```
 
 Create gallery directory if you set `GALLERY_UPLOAD_DIR`:
@@ -211,7 +222,18 @@ Certbot will install certificates and renew hooks automatically.
 
 ---
 
-## 11. Telegram (optional)
+## 11. Email on payment (recommended)
+
+After each successful payment (test or real), the site sends:
+
+- **Admin** → `ADMIN_EMAIL` (default `koroed.alena@mail.ru`) — who paid, sum, phone, Telegram
+- **Customer** → email from the booking form — Russian confirmation that Alyona will contact them soon
+
+Use Mail.ru SMTP (`SMTP_*` in `.env`). Create an **app password** in Mail.ru settings (not your normal login password).
+
+---
+
+## 12. Telegram (optional)
 
 1. Create a bot with [@BotFather](https://t.me/BotFather), get `TELEGRAM_BOT_TOKEN` and set `TELEGRAM_BOT_USERNAME`.
 2. Create a **group**, add yourself and the bot. Post any message in the group, then open:
@@ -238,11 +260,11 @@ Certbot will install certificates and renew hooks automatically.
    npm run db:migrate
    ```
 
-**Behaviour:** after test/real payment, the bot posts to the admin group (name, sum, @username from form, Telegram ID if the client pressed Start in the bot). If the client opened the bot from the checkout link, they get a Russian message that Alyona will write soon.
+Telegram is optional; payment notifications work via email without it.
 
 ---
 
-## 12. Cron reminders (optional)
+## 13. Cron reminders (optional)
 
 Call once per day (Moscow-day logic is in the handler; server should use correct timezone or accept UTC behaviour):
 

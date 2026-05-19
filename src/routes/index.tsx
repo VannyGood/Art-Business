@@ -643,8 +643,7 @@ function Contact() {
             />
           </div>
           <p className="text-sm text-muted-foreground -mt-2 px-2">
-            После оплаты открой бота по ссылке на странице оплаты — придёт сообщение, что скоро напишет
-            Алёна.
+            После оплаты на указанный email придёт подтверждение — скоро с вами свяжется Алёна.
           </p>
           <div className="grid md:grid-cols-2 gap-5">
             <select

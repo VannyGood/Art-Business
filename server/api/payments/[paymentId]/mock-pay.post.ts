@@ -3,7 +3,8 @@ import { eq } from "drizzle-orm";
 
 import { getDb } from "../../../../src/db/client";
 import { payments } from "../../../../src/db/schema";
-import { markBookingPaid, notifyPaymentPaidTelegram } from "../../../lib/payment-paid";
+import { markBookingPaid } from "../../../lib/payment-paid";
+import { notifyPaymentPaid } from "../../../lib/payment-notify";
 
 export default defineEventHandler(async (event) => {
   const paymentId = event.context.params?.paymentId;
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
   const marked = await markBookingPaid(db, paymentId);
   if (marked) {
-    await notifyPaymentPaidTelegram(db, paymentId);
+    await notifyPaymentPaid(db, paymentId);
   }
 
   return { ok: true };
