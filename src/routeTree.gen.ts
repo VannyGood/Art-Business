@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PaymentSuccessRouteImport } from './routes/payment/success'
+import { Route as PaymentCancelRouteImport } from './routes/payment/cancel'
 import { Route as GallerySplatRouteImport } from './routes/gallery.$'
 import { Route as ApiSlotsRouteImport } from './routes/api/slots'
 import { Route as ApiGalleryRouteImport } from './routes/api/gallery'
@@ -23,10 +25,15 @@ import { Route as ApiAdminLogoutRouteImport } from './routes/api/admin/logout'
 import { Route as ApiAdminLoginRouteImport } from './routes/api/admin/login'
 import { Route as ApiAdminGalleryRouteImport } from './routes/api/admin/gallery'
 import { Route as ApiAdminBookingsRouteImport } from './routes/api/admin/bookings'
+import { Route as ApiPaymentsAntilopayCallbackRouteImport } from './routes/api/payments/antilopay/callback'
 import { Route as ApiPaymentsPaymentIdStatusRouteImport } from './routes/api/payments/$paymentId/status'
 import { Route as ApiPaymentsPaymentIdMockPayRouteImport } from './routes/api/payments/$paymentId/mock-pay'
 import { Route as ApiPaymentsPaymentIdCheckoutRouteImport } from './routes/api/payments/$paymentId/checkout'
+import { Route as ApiAdminSlotsRemoveRouteImport } from './routes/api/admin/slots/remove'
+import { Route as ApiAdminSlotsIdRouteImport } from './routes/api/admin/slots/$id'
 import { Route as ApiAdminGalleryIdRouteImport } from './routes/api/admin/gallery/$id'
+import { Route as ApiAdminBookingsRemoveRouteImport } from './routes/api/admin/bookings/remove'
+import { Route as ApiAdminBookingsIdRouteImport } from './routes/api/admin/bookings/$id'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
@@ -36,6 +43,16 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment/success',
+  path: '/payment/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentCancelRoute = PaymentCancelRouteImport.update({
+  id: '/payment/cancel',
+  path: '/payment/cancel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GallerySplatRoute = GallerySplatRouteImport.update({
@@ -98,6 +115,12 @@ const ApiAdminBookingsRoute = ApiAdminBookingsRouteImport.update({
   path: '/api/admin/bookings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPaymentsAntilopayCallbackRoute =
+  ApiPaymentsAntilopayCallbackRouteImport.update({
+    id: '/api/payments/antilopay/callback',
+    path: '/api/payments/antilopay/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPaymentsPaymentIdStatusRoute =
   ApiPaymentsPaymentIdStatusRouteImport.update({
     id: '/api/payments/$paymentId/status',
@@ -116,10 +139,30 @@ const ApiPaymentsPaymentIdCheckoutRoute =
     path: '/api/payments/$paymentId/checkout',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminSlotsRemoveRoute = ApiAdminSlotsRemoveRouteImport.update({
+  id: '/remove',
+  path: '/remove',
+  getParentRoute: () => ApiAdminSlotsRoute,
+} as any)
+const ApiAdminSlotsIdRoute = ApiAdminSlotsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminSlotsRoute,
+} as any)
 const ApiAdminGalleryIdRoute = ApiAdminGalleryIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => ApiAdminGalleryRoute,
+} as any)
+const ApiAdminBookingsRemoveRoute = ApiAdminBookingsRemoveRouteImport.update({
+  id: '/remove',
+  path: '/remove',
+  getParentRoute: () => ApiAdminBookingsRoute,
+} as any)
+const ApiAdminBookingsIdRoute = ApiAdminBookingsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminBookingsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -129,18 +172,25 @@ export interface FileRoutesByFullPath {
   '/api/gallery': typeof ApiGalleryRoute
   '/api/slots': typeof ApiSlotsRoute
   '/gallery/$': typeof GallerySplatRoute
-  '/api/admin/bookings': typeof ApiAdminBookingsRoute
+  '/payment/cancel': typeof PaymentCancelRoute
+  '/payment/success': typeof PaymentSuccessRoute
+  '/api/admin/bookings': typeof ApiAdminBookingsRouteWithChildren
   '/api/admin/gallery': typeof ApiAdminGalleryRouteWithChildren
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
   '/api/admin/me': typeof ApiAdminMeRoute
-  '/api/admin/slots': typeof ApiAdminSlotsRoute
+  '/api/admin/slots': typeof ApiAdminSlotsRouteWithChildren
   '/api/cron/reminders': typeof ApiCronRemindersRoute
   '/api/telegram/webhook': typeof ApiTelegramWebhookRoute
+  '/api/admin/bookings/$id': typeof ApiAdminBookingsIdRoute
+  '/api/admin/bookings/remove': typeof ApiAdminBookingsRemoveRoute
   '/api/admin/gallery/$id': typeof ApiAdminGalleryIdRoute
+  '/api/admin/slots/$id': typeof ApiAdminSlotsIdRoute
+  '/api/admin/slots/remove': typeof ApiAdminSlotsRemoveRoute
   '/api/payments/$paymentId/checkout': typeof ApiPaymentsPaymentIdCheckoutRoute
   '/api/payments/$paymentId/mock-pay': typeof ApiPaymentsPaymentIdMockPayRoute
   '/api/payments/$paymentId/status': typeof ApiPaymentsPaymentIdStatusRoute
+  '/api/payments/antilopay/callback': typeof ApiPaymentsAntilopayCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -149,18 +199,25 @@ export interface FileRoutesByTo {
   '/api/gallery': typeof ApiGalleryRoute
   '/api/slots': typeof ApiSlotsRoute
   '/gallery/$': typeof GallerySplatRoute
-  '/api/admin/bookings': typeof ApiAdminBookingsRoute
+  '/payment/cancel': typeof PaymentCancelRoute
+  '/payment/success': typeof PaymentSuccessRoute
+  '/api/admin/bookings': typeof ApiAdminBookingsRouteWithChildren
   '/api/admin/gallery': typeof ApiAdminGalleryRouteWithChildren
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
   '/api/admin/me': typeof ApiAdminMeRoute
-  '/api/admin/slots': typeof ApiAdminSlotsRoute
+  '/api/admin/slots': typeof ApiAdminSlotsRouteWithChildren
   '/api/cron/reminders': typeof ApiCronRemindersRoute
   '/api/telegram/webhook': typeof ApiTelegramWebhookRoute
+  '/api/admin/bookings/$id': typeof ApiAdminBookingsIdRoute
+  '/api/admin/bookings/remove': typeof ApiAdminBookingsRemoveRoute
   '/api/admin/gallery/$id': typeof ApiAdminGalleryIdRoute
+  '/api/admin/slots/$id': typeof ApiAdminSlotsIdRoute
+  '/api/admin/slots/remove': typeof ApiAdminSlotsRemoveRoute
   '/api/payments/$paymentId/checkout': typeof ApiPaymentsPaymentIdCheckoutRoute
   '/api/payments/$paymentId/mock-pay': typeof ApiPaymentsPaymentIdMockPayRoute
   '/api/payments/$paymentId/status': typeof ApiPaymentsPaymentIdStatusRoute
+  '/api/payments/antilopay/callback': typeof ApiPaymentsAntilopayCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,18 +227,25 @@ export interface FileRoutesById {
   '/api/gallery': typeof ApiGalleryRoute
   '/api/slots': typeof ApiSlotsRoute
   '/gallery/$': typeof GallerySplatRoute
-  '/api/admin/bookings': typeof ApiAdminBookingsRoute
+  '/payment/cancel': typeof PaymentCancelRoute
+  '/payment/success': typeof PaymentSuccessRoute
+  '/api/admin/bookings': typeof ApiAdminBookingsRouteWithChildren
   '/api/admin/gallery': typeof ApiAdminGalleryRouteWithChildren
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
   '/api/admin/me': typeof ApiAdminMeRoute
-  '/api/admin/slots': typeof ApiAdminSlotsRoute
+  '/api/admin/slots': typeof ApiAdminSlotsRouteWithChildren
   '/api/cron/reminders': typeof ApiCronRemindersRoute
   '/api/telegram/webhook': typeof ApiTelegramWebhookRoute
+  '/api/admin/bookings/$id': typeof ApiAdminBookingsIdRoute
+  '/api/admin/bookings/remove': typeof ApiAdminBookingsRemoveRoute
   '/api/admin/gallery/$id': typeof ApiAdminGalleryIdRoute
+  '/api/admin/slots/$id': typeof ApiAdminSlotsIdRoute
+  '/api/admin/slots/remove': typeof ApiAdminSlotsRemoveRoute
   '/api/payments/$paymentId/checkout': typeof ApiPaymentsPaymentIdCheckoutRoute
   '/api/payments/$paymentId/mock-pay': typeof ApiPaymentsPaymentIdMockPayRoute
   '/api/payments/$paymentId/status': typeof ApiPaymentsPaymentIdStatusRoute
+  '/api/payments/antilopay/callback': typeof ApiPaymentsAntilopayCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -192,6 +256,8 @@ export interface FileRouteTypes {
     | '/api/gallery'
     | '/api/slots'
     | '/gallery/$'
+    | '/payment/cancel'
+    | '/payment/success'
     | '/api/admin/bookings'
     | '/api/admin/gallery'
     | '/api/admin/login'
@@ -200,10 +266,15 @@ export interface FileRouteTypes {
     | '/api/admin/slots'
     | '/api/cron/reminders'
     | '/api/telegram/webhook'
+    | '/api/admin/bookings/$id'
+    | '/api/admin/bookings/remove'
     | '/api/admin/gallery/$id'
+    | '/api/admin/slots/$id'
+    | '/api/admin/slots/remove'
     | '/api/payments/$paymentId/checkout'
     | '/api/payments/$paymentId/mock-pay'
     | '/api/payments/$paymentId/status'
+    | '/api/payments/antilopay/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -212,6 +283,8 @@ export interface FileRouteTypes {
     | '/api/gallery'
     | '/api/slots'
     | '/gallery/$'
+    | '/payment/cancel'
+    | '/payment/success'
     | '/api/admin/bookings'
     | '/api/admin/gallery'
     | '/api/admin/login'
@@ -220,10 +293,15 @@ export interface FileRouteTypes {
     | '/api/admin/slots'
     | '/api/cron/reminders'
     | '/api/telegram/webhook'
+    | '/api/admin/bookings/$id'
+    | '/api/admin/bookings/remove'
     | '/api/admin/gallery/$id'
+    | '/api/admin/slots/$id'
+    | '/api/admin/slots/remove'
     | '/api/payments/$paymentId/checkout'
     | '/api/payments/$paymentId/mock-pay'
     | '/api/payments/$paymentId/status'
+    | '/api/payments/antilopay/callback'
   id:
     | '__root__'
     | '/'
@@ -232,6 +310,8 @@ export interface FileRouteTypes {
     | '/api/gallery'
     | '/api/slots'
     | '/gallery/$'
+    | '/payment/cancel'
+    | '/payment/success'
     | '/api/admin/bookings'
     | '/api/admin/gallery'
     | '/api/admin/login'
@@ -240,10 +320,15 @@ export interface FileRouteTypes {
     | '/api/admin/slots'
     | '/api/cron/reminders'
     | '/api/telegram/webhook'
+    | '/api/admin/bookings/$id'
+    | '/api/admin/bookings/remove'
     | '/api/admin/gallery/$id'
+    | '/api/admin/slots/$id'
+    | '/api/admin/slots/remove'
     | '/api/payments/$paymentId/checkout'
     | '/api/payments/$paymentId/mock-pay'
     | '/api/payments/$paymentId/status'
+    | '/api/payments/antilopay/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -253,17 +338,20 @@ export interface RootRouteChildren {
   ApiGalleryRoute: typeof ApiGalleryRoute
   ApiSlotsRoute: typeof ApiSlotsRoute
   GallerySplatRoute: typeof GallerySplatRoute
-  ApiAdminBookingsRoute: typeof ApiAdminBookingsRoute
+  PaymentCancelRoute: typeof PaymentCancelRoute
+  PaymentSuccessRoute: typeof PaymentSuccessRoute
+  ApiAdminBookingsRoute: typeof ApiAdminBookingsRouteWithChildren
   ApiAdminGalleryRoute: typeof ApiAdminGalleryRouteWithChildren
   ApiAdminLoginRoute: typeof ApiAdminLoginRoute
   ApiAdminLogoutRoute: typeof ApiAdminLogoutRoute
   ApiAdminMeRoute: typeof ApiAdminMeRoute
-  ApiAdminSlotsRoute: typeof ApiAdminSlotsRoute
+  ApiAdminSlotsRoute: typeof ApiAdminSlotsRouteWithChildren
   ApiCronRemindersRoute: typeof ApiCronRemindersRoute
   ApiTelegramWebhookRoute: typeof ApiTelegramWebhookRoute
   ApiPaymentsPaymentIdCheckoutRoute: typeof ApiPaymentsPaymentIdCheckoutRoute
   ApiPaymentsPaymentIdMockPayRoute: typeof ApiPaymentsPaymentIdMockPayRoute
   ApiPaymentsPaymentIdStatusRoute: typeof ApiPaymentsPaymentIdStatusRoute
+  ApiPaymentsAntilopayCallbackRoute: typeof ApiPaymentsAntilopayCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -280,6 +368,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/success': {
+      id: '/payment/success'
+      path: '/payment/success'
+      fullPath: '/payment/success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/cancel': {
+      id: '/payment/cancel'
+      path: '/payment/cancel'
+      fullPath: '/payment/cancel'
+      preLoaderRoute: typeof PaymentCancelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gallery/$': {
@@ -366,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminBookingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/payments/antilopay/callback': {
+      id: '/api/payments/antilopay/callback'
+      path: '/api/payments/antilopay/callback'
+      fullPath: '/api/payments/antilopay/callback'
+      preLoaderRoute: typeof ApiPaymentsAntilopayCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/payments/$paymentId/status': {
       id: '/api/payments/$paymentId/status'
       path: '/api/payments/$paymentId/status'
@@ -387,6 +496,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPaymentsPaymentIdCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/slots/remove': {
+      id: '/api/admin/slots/remove'
+      path: '/remove'
+      fullPath: '/api/admin/slots/remove'
+      preLoaderRoute: typeof ApiAdminSlotsRemoveRouteImport
+      parentRoute: typeof ApiAdminSlotsRoute
+    }
+    '/api/admin/slots/$id': {
+      id: '/api/admin/slots/$id'
+      path: '/$id'
+      fullPath: '/api/admin/slots/$id'
+      preLoaderRoute: typeof ApiAdminSlotsIdRouteImport
+      parentRoute: typeof ApiAdminSlotsRoute
+    }
     '/api/admin/gallery/$id': {
       id: '/api/admin/gallery/$id'
       path: '/$id'
@@ -394,8 +517,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminGalleryIdRouteImport
       parentRoute: typeof ApiAdminGalleryRoute
     }
+    '/api/admin/bookings/remove': {
+      id: '/api/admin/bookings/remove'
+      path: '/remove'
+      fullPath: '/api/admin/bookings/remove'
+      preLoaderRoute: typeof ApiAdminBookingsRemoveRouteImport
+      parentRoute: typeof ApiAdminBookingsRoute
+    }
+    '/api/admin/bookings/$id': {
+      id: '/api/admin/bookings/$id'
+      path: '/$id'
+      fullPath: '/api/admin/bookings/$id'
+      preLoaderRoute: typeof ApiAdminBookingsIdRouteImport
+      parentRoute: typeof ApiAdminBookingsRoute
+    }
   }
 }
+
+interface ApiAdminBookingsRouteChildren {
+  ApiAdminBookingsIdRoute: typeof ApiAdminBookingsIdRoute
+  ApiAdminBookingsRemoveRoute: typeof ApiAdminBookingsRemoveRoute
+}
+
+const ApiAdminBookingsRouteChildren: ApiAdminBookingsRouteChildren = {
+  ApiAdminBookingsIdRoute: ApiAdminBookingsIdRoute,
+  ApiAdminBookingsRemoveRoute: ApiAdminBookingsRemoveRoute,
+}
+
+const ApiAdminBookingsRouteWithChildren =
+  ApiAdminBookingsRoute._addFileChildren(ApiAdminBookingsRouteChildren)
 
 interface ApiAdminGalleryRouteChildren {
   ApiAdminGalleryIdRoute: typeof ApiAdminGalleryIdRoute
@@ -409,6 +559,20 @@ const ApiAdminGalleryRouteWithChildren = ApiAdminGalleryRoute._addFileChildren(
   ApiAdminGalleryRouteChildren,
 )
 
+interface ApiAdminSlotsRouteChildren {
+  ApiAdminSlotsIdRoute: typeof ApiAdminSlotsIdRoute
+  ApiAdminSlotsRemoveRoute: typeof ApiAdminSlotsRemoveRoute
+}
+
+const ApiAdminSlotsRouteChildren: ApiAdminSlotsRouteChildren = {
+  ApiAdminSlotsIdRoute: ApiAdminSlotsIdRoute,
+  ApiAdminSlotsRemoveRoute: ApiAdminSlotsRemoveRoute,
+}
+
+const ApiAdminSlotsRouteWithChildren = ApiAdminSlotsRoute._addFileChildren(
+  ApiAdminSlotsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -416,17 +580,20 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGalleryRoute: ApiGalleryRoute,
   ApiSlotsRoute: ApiSlotsRoute,
   GallerySplatRoute: GallerySplatRoute,
-  ApiAdminBookingsRoute: ApiAdminBookingsRoute,
+  PaymentCancelRoute: PaymentCancelRoute,
+  PaymentSuccessRoute: PaymentSuccessRoute,
+  ApiAdminBookingsRoute: ApiAdminBookingsRouteWithChildren,
   ApiAdminGalleryRoute: ApiAdminGalleryRouteWithChildren,
   ApiAdminLoginRoute: ApiAdminLoginRoute,
   ApiAdminLogoutRoute: ApiAdminLogoutRoute,
   ApiAdminMeRoute: ApiAdminMeRoute,
-  ApiAdminSlotsRoute: ApiAdminSlotsRoute,
+  ApiAdminSlotsRoute: ApiAdminSlotsRouteWithChildren,
   ApiCronRemindersRoute: ApiCronRemindersRoute,
   ApiTelegramWebhookRoute: ApiTelegramWebhookRoute,
   ApiPaymentsPaymentIdCheckoutRoute: ApiPaymentsPaymentIdCheckoutRoute,
   ApiPaymentsPaymentIdMockPayRoute: ApiPaymentsPaymentIdMockPayRoute,
   ApiPaymentsPaymentIdStatusRoute: ApiPaymentsPaymentIdStatusRoute,
+  ApiPaymentsAntilopayCallbackRoute: ApiPaymentsAntilopayCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
