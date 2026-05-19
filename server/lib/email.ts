@@ -25,9 +25,10 @@ function createTransport() {
   return nodemailer.createTransport({
     host: cfg.host,
     port: cfg.port,
-    secure: cfg.secure,
+    secure: cfg.port === 465,
+    requireTLS: cfg.port === 587,
     auth: { user: cfg.user, pass: cfg.pass },
-    tls: cfg.port === 465 ? { minVersion: "TLSv1.2" } : undefined,
+    tls: { minVersion: "TLSv1.2" },
     connectionTimeout: 20_000,
     greetingTimeout: 20_000,
     socketTimeout: 25_000,
