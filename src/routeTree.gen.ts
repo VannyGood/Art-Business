@@ -34,6 +34,7 @@ import { Route as ApiPaymentsPaymentIdMockPayRouteImport } from './routes/api/pa
 import { Route as ApiPaymentsPaymentIdCheckoutRouteImport } from './routes/api/payments/$paymentId/checkout'
 import { Route as ApiAdminSlotsRemoveRouteImport } from './routes/api/admin/slots/remove'
 import { Route as ApiAdminSlotsIdRouteImport } from './routes/api/admin/slots/$id'
+import { Route as ApiAdminPaymentsSetStatusRouteImport } from './routes/api/admin/payments/set-status'
 import { Route as ApiAdminGalleryIdRouteImport } from './routes/api/admin/gallery/$id'
 import { Route as ApiAdminBookingsRemoveRouteImport } from './routes/api/admin/bookings/remove'
 import { Route as ApiAdminBookingsIdRouteImport } from './routes/api/admin/bookings/$id'
@@ -168,6 +169,12 @@ const ApiAdminSlotsIdRoute = ApiAdminSlotsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAdminSlotsRoute,
 } as any)
+const ApiAdminPaymentsSetStatusRoute =
+  ApiAdminPaymentsSetStatusRouteImport.update({
+    id: '/api/admin/payments/set-status',
+    path: '/api/admin/payments/set-status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminGalleryIdRoute = ApiAdminGalleryIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -207,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/bookings/$id': typeof ApiAdminBookingsIdRoute
   '/api/admin/bookings/remove': typeof ApiAdminBookingsRemoveRoute
   '/api/admin/gallery/$id': typeof ApiAdminGalleryIdRoute
+  '/api/admin/payments/set-status': typeof ApiAdminPaymentsSetStatusRoute
   '/api/admin/slots/$id': typeof ApiAdminSlotsIdRoute
   '/api/admin/slots/remove': typeof ApiAdminSlotsRemoveRoute
   '/api/payments/$paymentId/checkout': typeof ApiPaymentsPaymentIdCheckoutRoute
@@ -237,6 +245,7 @@ export interface FileRoutesByTo {
   '/api/admin/bookings/$id': typeof ApiAdminBookingsIdRoute
   '/api/admin/bookings/remove': typeof ApiAdminBookingsRemoveRoute
   '/api/admin/gallery/$id': typeof ApiAdminGalleryIdRoute
+  '/api/admin/payments/set-status': typeof ApiAdminPaymentsSetStatusRoute
   '/api/admin/slots/$id': typeof ApiAdminSlotsIdRoute
   '/api/admin/slots/remove': typeof ApiAdminSlotsRemoveRoute
   '/api/payments/$paymentId/checkout': typeof ApiPaymentsPaymentIdCheckoutRoute
@@ -268,6 +277,7 @@ export interface FileRoutesById {
   '/api/admin/bookings/$id': typeof ApiAdminBookingsIdRoute
   '/api/admin/bookings/remove': typeof ApiAdminBookingsRemoveRoute
   '/api/admin/gallery/$id': typeof ApiAdminGalleryIdRoute
+  '/api/admin/payments/set-status': typeof ApiAdminPaymentsSetStatusRoute
   '/api/admin/slots/$id': typeof ApiAdminSlotsIdRoute
   '/api/admin/slots/remove': typeof ApiAdminSlotsRemoveRoute
   '/api/payments/$paymentId/checkout': typeof ApiPaymentsPaymentIdCheckoutRoute
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/api/admin/bookings/$id'
     | '/api/admin/bookings/remove'
     | '/api/admin/gallery/$id'
+    | '/api/admin/payments/set-status'
     | '/api/admin/slots/$id'
     | '/api/admin/slots/remove'
     | '/api/payments/$paymentId/checkout'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/api/admin/bookings/$id'
     | '/api/admin/bookings/remove'
     | '/api/admin/gallery/$id'
+    | '/api/admin/payments/set-status'
     | '/api/admin/slots/$id'
     | '/api/admin/slots/remove'
     | '/api/payments/$paymentId/checkout'
@@ -360,6 +372,7 @@ export interface FileRouteTypes {
     | '/api/admin/bookings/$id'
     | '/api/admin/bookings/remove'
     | '/api/admin/gallery/$id'
+    | '/api/admin/payments/set-status'
     | '/api/admin/slots/$id'
     | '/api/admin/slots/remove'
     | '/api/payments/$paymentId/checkout'
@@ -388,6 +401,7 @@ export interface RootRouteChildren {
   ApiAdminTestEmailRoute: typeof ApiAdminTestEmailRoute
   ApiCronRemindersRoute: typeof ApiCronRemindersRoute
   ApiTelegramWebhookRoute: typeof ApiTelegramWebhookRoute
+  ApiAdminPaymentsSetStatusRoute: typeof ApiAdminPaymentsSetStatusRoute
   ApiPaymentsPaymentIdCheckoutRoute: typeof ApiPaymentsPaymentIdCheckoutRoute
   ApiPaymentsPaymentIdMockPayRoute: typeof ApiPaymentsPaymentIdMockPayRoute
   ApiPaymentsPaymentIdStatusRoute: typeof ApiPaymentsPaymentIdStatusRoute
@@ -571,6 +585,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminSlotsIdRouteImport
       parentRoute: typeof ApiAdminSlotsRoute
     }
+    '/api/admin/payments/set-status': {
+      id: '/api/admin/payments/set-status'
+      path: '/api/admin/payments/set-status'
+      fullPath: '/api/admin/payments/set-status'
+      preLoaderRoute: typeof ApiAdminPaymentsSetStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/gallery/$id': {
       id: '/api/admin/gallery/$id'
       path: '/$id'
@@ -654,6 +675,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminTestEmailRoute: ApiAdminTestEmailRoute,
   ApiCronRemindersRoute: ApiCronRemindersRoute,
   ApiTelegramWebhookRoute: ApiTelegramWebhookRoute,
+  ApiAdminPaymentsSetStatusRoute: ApiAdminPaymentsSetStatusRoute,
   ApiPaymentsPaymentIdCheckoutRoute: ApiPaymentsPaymentIdCheckoutRoute,
   ApiPaymentsPaymentIdMockPayRoute: ApiPaymentsPaymentIdMockPayRoute,
   ApiPaymentsPaymentIdStatusRoute: ApiPaymentsPaymentIdStatusRoute,

@@ -1,10 +1,15 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 
 import { formatPriceRub } from "@/lib/pricing";
+import {
+  TELEGRAM_PAYMENT_PREFILL,
+  TELEGRAM_PAYMENT_USERNAME,
+  telegramPaymentUrl,
+} from "@/lib/telegram-payment";
 
 export const Route = createFileRoute("/payment/$paymentId")({
-  component: PaymentCheckoutPage,
+  component: PaymentTelegramPage,
 });
 
 const PLAN_LABELS: Record<string, string> = {
@@ -21,13 +26,12 @@ type PaymentInfo = {
   plan: string | null;
 };
 
-function PaymentCheckoutPage() {
+function PaymentTelegramPage() {
   const { paymentId } = Route.useParams();
-  const navigate = useNavigate();
   const [info, setInfo] = useState<PaymentInfo | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [paying, setPaying] = useState(false);
-  const [payError, setPayError] = useState<string | null>(null);
+
+  const telegramUrl = telegramPaymentUrl(TELEGRAM_PAYMENT_PREFILL);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/payments/${paymentId}/status`);
@@ -36,30 +40,11 @@ function PaymentCheckoutPage() {
       throw new Error("error" in data ? data.error : `Ошибка ${res.status}`);
     }
     setInfo(data as PaymentInfo);
-    if ((data as PaymentInfo).status === "paid") {
-      navigate({ to: "/payment/success" });
-    }
-  }, [paymentId, navigate]);
+  }, [paymentId]);
 
   useEffect(() => {
     load().catch((e) => setLoadError(e instanceof Error ? e.message : "Ошибка загрузки"));
   }, [load]);
-
-  async function handlePay() {
-    setPaying(true);
-    setPayError(null);
-    try {
-      const res = await fetch(`/api/payments/${paymentId}/mock-pay`, { method: "POST" });
-      const data = (await res.json()) as { ok?: boolean; error?: string };
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error ?? `Ошибка ${res.status}`);
-      }
-      navigate({ to: "/payment/success" });
-    } catch (e) {
-      setPayError(e instanceof Error ? e.message : "Не удалось оплатить");
-      setPaying(false);
-    }
-  }
 
   const planLabel = info?.plan ? (PLAN_LABELS[info.plan] ?? info.plan) : null;
   const lessonWhen = info
@@ -69,8 +54,8 @@ function PaymentCheckoutPage() {
   return (
     <main className="min-h-screen flex items-center justify-center px-6 py-16 bg-background">
       <div className="glass rounded-3xl p-8 md:p-10 max-w-lg w-full shadow-soft">
-        <p className="font-script text-2xl text-gradient-gold text-center">оплата</p>
-        <h1 className="mt-2 text-3xl font-display text-center">Завершите запись</h1>
+        <p className="font-script text-2xl text-gradient-gold text-center">запись</p>
+        <h1 className="mt-2 text-3xl font-display text-center">Свяжитесь в Telegram</h1>
 
         {loadError && <p className="mt-6 text-sm text-red-600 text-center">{loadError}</p>}
 
@@ -101,22 +86,37 @@ function PaymentCheckoutPage() {
                   {lessonWhen}
                 </p>
               )}
-              <p className="text-muted-foreground pt-2">
-                Сейчас оплата тестовая (карта/SBP подключим позже). После нажатия кнопки придёт
-                письмо на email.
-              </p>
             </div>
 
-            <button
-              type="button"
-              onClick={handlePay}
-              disabled={paying || info.status === "paid"}
-              className="mt-8 w-full rounded-full py-4 px-8 text-base font-medium bg-foreground text-background transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {paying ? "Обрабатываю…" : "Оплатить (тест)"}
-            </button>
+            <p className="mt-8 text-sm text-muted-foreground leading-relaxed">
+              Онлайн-оплата на сайте скоро появится. Сейчас запись подтверждается через Telegram:
+              напишите Алёне — согласуем оплату и детали занятия.
+            </p>
 
-            {payError && <p className="mt-4 text-sm text-red-600 text-center">{payError}</p>}
+            <p className="mt-4 text-sm leading-relaxed">
+              Нажмите кнопку ниже, откройте чат{" "}
+              <strong>@{TELEGRAM_PAYMENT_USERNAME}</strong> и отправьте сообщение (текст уже
+              подставлен — можно отредактировать).
+            </p>
+
+            <a
+              href={telegramUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-8 flex w-full items-center justify-center rounded-full py-4 px-8 text-base font-medium bg-[#229ED9] text-white transition hover:opacity-90"
+            >
+              Написать в Telegram
+            </a>
+
+            <p className="mt-4 text-center text-xs text-muted-foreground break-all">
+              {telegramUrl}
+            </p>
+
+            {info.status === "paid" && (
+              <p className="mt-4 text-center text-sm text-emerald-700">
+                Оплата отмечена. Спасибо!
+              </p>
+            )}
 
             <p className="mt-6 text-center">
               <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">

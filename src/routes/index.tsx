@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import heroBg from "@/assets/hero.jpg";
 import portrait from "@/assets/portrait.jpg";
+import logoTop from "@/assets/logotop.png";
 import { formatPriceRub, amountRubForPlan } from "@/lib/pricing";
 
 export const Route = createFileRoute("/")({
@@ -78,9 +79,14 @@ function Nav() {
   return (
     <header className="fixed top-0 inset-x-0 z-50">
       <div className="mx-auto max-w-7xl px-6 py-5 flex items-center justify-between glass rounded-b-3xl">
-        <a href="#top" className="flex items-baseline gap-2">
-          <span className="font-display text-2xl tracking-wide">Алёна</span>
-          <span className="font-script text-gradient-gold text-xl">art</span>
+        <a href="#top" className="flex items-center gap-3">
+          <img
+            src={logoTop}
+            alt="Алёна art"
+            className="h-12 w-12 md:h-14 md:w-14 rounded-full object-cover ring-2 ring-border/60"
+          />
+          <span className="font-display text-2xl tracking-wide hidden sm:inline">Алёна</span>
+          <span className="font-script text-gradient-gold text-xl hidden sm:inline">art</span>
         </a>
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
           <a href="#about" className="hover:text-foreground transition">
@@ -555,7 +561,7 @@ function Contact() {
           <h2 className="mt-3 text-4xl md:text-5xl">Записаться на урок</h2>
           <div className="gold-divider w-24 mt-6 mx-auto" />
           <p className="mt-6 text-muted-foreground max-w-xl mx-auto">
-            Выбери дату и оплати — и в день занятия ты получишь напоминание в Telegram.
+            Выбери дату и тариф — после записи напишите Алёне в Telegram для оплаты и деталей.
           </p>
         </div>
         <form
@@ -643,7 +649,7 @@ function Contact() {
             />
           </div>
           <p className="text-sm text-muted-foreground -mt-2 px-2">
-            После оплаты на указанный email придёт подтверждение — скоро с вами свяжется Алёна.
+            После «Перейти к оплате» откроется Telegram — напишите, чтобы согласовать оплату.
           </p>
           <div className="grid md:grid-cols-2 gap-5">
             <select

@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import logoUrl from "../assets/logotop.png?url";
 
 function NotFoundComponent() {
   return (
@@ -89,6 +90,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
     ],
     links: [
+      { rel: "icon", type: "image/png", href: logoUrl },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/logotop.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/logotop.png" },
       {
         rel: "stylesheet",
         href: appCss,
@@ -109,7 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <head>
         <HeadContent />
       </head>

@@ -530,7 +530,74 @@ function AdminPage() {
                     </td>
                     <td className="py-2">{b.status}</td>
                     <td className="py-2">
-                      {b.paymentStatus ? `${b.paymentStatus} · ${b.amountRub ?? ""}₽` : "—"}
+                      <div className="text-xs">
+                        {b.paymentStatus === "paid" ? (
+                          <span className="text-emerald-700 font-medium">Оплачено</span>
+                        ) : (
+                          <span className="text-amber-700 font-medium">Не оплачено</span>
+                        )}
+                        {b.amountRub != null ? ` · ${b.amountRub}₽` : ""}
+                      </div>
+                      {b.paymentId && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={busy || b.paymentStatus === "paid"}
+                            className="text-xs rounded-full px-3 py-1 bg-emerald-600/10 text-emerald-800 hover:bg-emerald-600/20 disabled:opacity-40"
+                            onClick={async () => {
+                              setBusy(true);
+                              try {
+                                const res = await fetch("/api/admin/payments/set-status", {
+                                  method: "POST",
+                                  credentials: "include",
+                                  headers: { "content-type": "application/json" },
+                                  body: JSON.stringify({
+                                    paymentId: b.paymentId,
+                                    status: "paid",
+                                  }),
+                                });
+                                const data = await readApiJson(res);
+                                if (!res.ok) throw new Error(data.error ?? "Ошибка");
+                                await refresh();
+                              } catch (err) {
+                                alert(err instanceof Error ? err.message : "Ошибка");
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          >
+                            Оплачено
+                          </button>
+                          <button
+                            type="button"
+                            disabled={busy || b.paymentStatus !== "paid"}
+                            className="text-xs rounded-full px-3 py-1 bg-amber-600/10 text-amber-900 hover:bg-amber-600/20 disabled:opacity-40"
+                            onClick={async () => {
+                              setBusy(true);
+                              try {
+                                const res = await fetch("/api/admin/payments/set-status", {
+                                  method: "POST",
+                                  credentials: "include",
+                                  headers: { "content-type": "application/json" },
+                                  body: JSON.stringify({
+                                    paymentId: b.paymentId,
+                                    status: "unpaid",
+                                  }),
+                                });
+                                const data = await readApiJson(res);
+                                if (!res.ok) throw new Error(data.error ?? "Ошибка");
+                                await refresh();
+                              } catch (err) {
+                                alert(err instanceof Error ? err.message : "Ошибка");
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          >
+                            Не оплачено
+                          </button>
+                        </div>
+                      )}
                     </td>
                     <td className="py-2 text-right">
                       <button
