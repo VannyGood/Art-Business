@@ -2,6 +2,7 @@ import { defineEventHandler, readBody } from "h3";
 import { eq } from "drizzle-orm";
 
 import { amountRubForPlan } from "../../src/lib/pricing";
+import { isSlotAvailable } from "../lib/slot-availability";
 import { getDb } from "../../src/db/client";
 import { adminAvailabilitySlots, bookings, payments } from "../../src/db/schema";
 
@@ -59,6 +60,7 @@ export default defineEventHandler(async (event) => {
         id: adminAvailabilitySlots.id,
         startAt: adminAvailabilitySlots.startAt,
         endAt: adminAvailabilitySlots.endAt,
+        capacity: adminAvailabilitySlots.capacity,
       })
       .from(adminAvailabilitySlots)
       .where(eq(adminAvailabilitySlots.id, body.slotId!))
@@ -68,6 +70,18 @@ export default defineEventHandler(async (event) => {
       event.node.res.statusCode = 404;
       return { error: "Slot not found" };
     }
+
+    const available = await isSlotAvailable(db, {
+      id: slot.id,
+      startAt: slot.startAt,
+      endAt: slot.endAt,
+      capacity: slot.capacity ?? 1,
+    });
+    if (!available) {
+      event.node.res.statusCode = 409;
+      return { error: "Это время уже занято. Выберите другой слот." };
+    }
+
     appointmentStartAt = slot.startAt;
     appointmentEndAt = slot.endAt;
   } else {
@@ -99,7 +113,10 @@ export default defineEventHandler(async (event) => {
       provider: "card",
       amountRub,
       status: "created",
-      metadata: { plan: body.plan },
+      metadata: {
+        plan: body.plan,
+        ...(isSingle && body.slotId ? { slotId: body.slotId } : {}),
+      },
     })
     .returning({ id: payments.id });
 

@@ -3,6 +3,7 @@ import { and, gte, lte } from "drizzle-orm";
 
 import { getDb } from "../../src/db/client";
 import { adminAvailabilitySlots } from "../../src/db/schema";
+import { getFullyBookedSlotIds } from "../lib/slot-availability";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
@@ -31,5 +32,17 @@ export default defineEventHandler(async (event) => {
     )
     .orderBy(adminAvailabilitySlots.startAt);
 
-  return { slots: rows };
+  const bookedIds = await getFullyBookedSlotIds(
+    db,
+    rows.map((r) => ({
+      id: r.id,
+      startAt: r.startAt,
+      endAt: r.endAt,
+      capacity: r.capacity,
+    })),
+  );
+
+  const slots = rows.filter((r) => !bookedIds.has(r.id));
+
+  return { slots };
 });
